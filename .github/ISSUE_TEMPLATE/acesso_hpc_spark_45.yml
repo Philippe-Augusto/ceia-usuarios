@@ -1,0 +1,86 @@
+name: "Solicitação de Acesso - HPC Spark 45 (CEIA/Akcit)"
+description: "Formulário para registro e solicitação de credenciais de acesso ao cluster hpc-spark-45."
+title: "[Acesso hpc-spark-45] "
+labels: ["novo-acesso", "pendente"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ### Bem-vindo(a) ao processo de solicitação de acesso ao cluster hpc-spark-45
+
+        Para prosseguir com a liberação, por favor preencha os dados abaixo.
+
+        **⚠️ ATENÇÃO - PASSO OBRIGATÓRIO:**
+        É necessário assinar o termo de responsabilidade e anexá-lo (arrastar o PDF) no final desta página antes de abrir a Issue. Recomendamos fortemente o uso de assinatura digital (preferencialmente via [gov.br](https://www.gov.br/pt-br/servicos/assinatura-eletronica)).
+
+        👉 **[BAIXE AQUI O TERMO DE RESPONSABILIDADE](https://drive.google.com/file/d/1KJla5KLLMLAabjmpBsFcf43vMAEfP9iH/view?usp=sharing)**
+
+        Após a conclusão, retornaremos com os respectivos dados de acesso.
+
+  - type: input
+    id: nome_completo
+    attributes:
+      label: "Nome completo do pesquisador"
+      placeholder: "Ex: João da Silva"
+    validations:
+      required: true
+
+  - type: input
+    id: email
+    attributes:
+      label: "Email"
+      description: "Dê preferência ao seu e-mail institucional."
+      placeholder: "Ex: usuario@discente.ufg.br"
+    validations:
+      required: true
+
+  - type: input
+    id: telefone
+    attributes:
+      label: "Telefone de contato com DDD"
+      placeholder: "Ex: (62) 99999-9999"
+    validations:
+      required: true
+
+  - type: input
+    id: projeto
+    attributes:
+      label: "Projeto de pesquisa"
+      placeholder: "Ex: SafeAI, 4Vants II, etc."
+    validations:
+      required: true
+
+  - type: input
+    id: coordenador
+    attributes:
+      label: "Coordenador do Projeto"
+      placeholder: "Nome do coordenador responsável"
+    validations:
+      required: true
+
+  - type: input
+    id: instituicao
+    attributes:
+      label: "Instituição"
+      placeholder: "Ex: UFG"
+    validations:
+      required: true
+
+  - type: input
+    id: matricula
+    attributes:
+      label: "Matrícula UFG"
+      description: "Caso não possua vínculo ou matrícula, escreva 'Não possuo'."
+      placeholder: "Ex: 2024000000"
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: confirmacoes
+    attributes:
+      label: "Confirmações Finais"
+      options:
+        - label: "Revisei meus dados e confirmo que estão corretos."
+          required: true
+        - label: "Anexei o Termo de Responsabilidade devidamente assinado no corpo desta Issue (basta arrastar o arquivo para a caixa de texto abaixo)."
+          required: true

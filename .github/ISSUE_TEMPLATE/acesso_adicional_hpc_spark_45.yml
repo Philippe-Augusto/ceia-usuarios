@@ -1,0 +1,37 @@
+name: "Solicitação de Acesso Adicional - HPC Spark 45 (CEIA/Akcit)"
+description: "Formulário para quem já possui cadastro no ambiente e precisa apenas de acesso a este cluster."
+title: "[Acesso Adicional hpc-spark-45] "
+labels: ["acesso-cluster-adicional", "pendente"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ### Solicitação de acesso ao cluster hpc-spark-45 (CEIA/Akcit)
+
+        Use este formulário **somente se você já possui cadastro/usuário no ambiente** e precisa apenas de liberação de acesso a este cluster específico.
+
+        Caso ainda não possua nenhum cadastro no ambiente, utilize o formulário **"Solicitação de Acesso - HPC Spark 45"** em vez deste.
+
+  - type: input
+    id: usuario_ou_email
+    attributes:
+      label: "Usuário ou email já cadastrado no ambiente"
+      placeholder: "Ex: user_joaosilva ou joao.silva@discente.ufg.br"
+    validations:
+      required: true
+
+  - type: input
+    id: professor_solicitante
+    attributes:
+      label: "Nome do professor responsável pela solicitação"
+      placeholder: "Nome do professor que está solicitando o acesso"
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: confirmacoes
+    attributes:
+      label: "Confirmações Finais"
+      options:
+        - label: "Revisei meus dados e confirmo que estão corretos."
+          required: true

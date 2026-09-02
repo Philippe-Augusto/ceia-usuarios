@@ -34,10 +34,21 @@ body:
       label: "Plataforma / Cluster Desejado"
       description: "Selecione o cluster computacional adicional para o qual está solicitando acesso."
       options:
-        - "Cluster Spark (hpc-spark-45)"
+        - "Spark (hpc-spark-45)"
         - "H100"
         - "B200"
-        - "Outro (especificar abaixo)"
+        - "Outro (especificar no campo de Observações)"
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: "<br>"
+  
+  - type: input
+    id: projeto
+    attributes:
+      label: "Grupo/Projeto de pesquisa"
     validations:
       required: true
 
@@ -52,6 +63,15 @@ body:
       placeholder: "Nome do professor que está solicitando o acesso"
     validations:
       required: true
+
+  - type: markdown
+    attributes:
+      value: "<br>"
+  
+  - type: textarea
+    id: observacoes
+    attributes:
+      label: "Observações"
 
   - type: markdown
     attributes:

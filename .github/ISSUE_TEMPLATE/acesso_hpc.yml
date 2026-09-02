@@ -95,8 +95,7 @@ body:
         - "Spark (hpc-spark-45)"
         - "H100"
         - "B200"
-        - "A100"
-        - "Outro (especificar no campo de projeto)"
+        - "Outro (especificar no campo de Observações)"
     validations:
       required: true
 
@@ -107,8 +106,7 @@ body:
   - type: input
     id: projeto
     attributes:
-      label: "Projeto de pesquisa"
-      placeholder: "Ex: SafeAI, 4Vants II, etc."
+      label: "Grupo/Projeto de pesquisa"
     validations:
       required: true
 
@@ -143,7 +141,7 @@ body:
   - type: textarea
     id: termo_responsabilidade
     attributes:
-      label: "Termo de Responsabilidade Assinado (PDF)"
+      label: "Observações & Termo de Responsabilidade Assinado (PDF)"
       description: "Arraste e solte o arquivo PDF assinado aqui, cole, ou clique na área abaixo para selecionar o arquivo."
       placeholder: "Arraste e solte o PDF assinado aqui..."
     validations:

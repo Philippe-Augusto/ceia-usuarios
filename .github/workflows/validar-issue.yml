@@ -51,7 +51,7 @@ jobs:
             }
 
             // 3. Termo de Responsabilidade Assinado (PDF)
-            const termo = extrairCampo("Termo de Responsabilidade Assinado (PDF)");
+            const termo = extrairCampo("Observações & Termo de Responsabilidade Assinado (PDF)");
             const temAnexo = /https?:\/\/[^\s)]+/i.test(termo) || /\.pdf/i.test(termo);
             if (!isPreenchido(termo) || !temAnexo) {
               pendencias.push("Anexe o **Termo de Responsabilidade assinado** (arraste o arquivo PDF para o campo correspondente).");

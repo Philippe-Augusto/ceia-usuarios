@@ -1,6 +1,6 @@
 name: "Solicitação de Acesso - HPC Spark 45 (CEIA/Akcit)"
 description: "Formulário para registro e solicitação de credenciais de acesso ao cluster hpc-spark-45."
-title: "[Acesso hpc-spark-45] "
+title: "[Acesso hpc-spark-45] [Nome do pesquisador]"
 labels: ["novo-acesso", "pendente"]
 body:
   - type: markdown
@@ -10,10 +10,10 @@ body:
 
         Para prosseguir com a liberação, por favor preencha os dados abaixo.
 
-        **⚠️ ATENÇÃO - PASSO OBRIGATÓRIO:**
+        **ATENÇÃO - PASSO OBRIGATÓRIO:**
         É necessário assinar o termo de responsabilidade e anexá-lo (arrastar o PDF) no final desta página antes de abrir a Issue. Recomendamos fortemente o uso de assinatura digital (preferencialmente via [gov.br](https://www.gov.br/pt-br/servicos/assinatura-eletronica)).
 
-        👉 **[BAIXE AQUI O TERMO DE RESPONSABILIDADE](https://drive.google.com/file/d/1KJla5KLLMLAabjmpBsFcf43vMAEfP9iH/view?usp=sharing)**
+        **[BAIXE AQUI O TERMO DE RESPONSABILIDADE](https://drive.google.com/file/d/1KJla5KLLMLAabjmpBsFcf43vMAEfP9iH/view?usp=sharing)**
 
         Após a conclusão, retornaremos com os respectivos dados de acesso.
 
@@ -75,6 +75,15 @@ body:
     validations:
       required: true
 
+  - type: textarea
+    id: termo_responsabilidade
+    attributes:
+      label: "Termo de Responsabilidade Assinado (PDF)"
+      description: "Arraste e solte o arquivo PDF assinado aqui, cole, ou clique na área abaixo para selecionar o arquivo."
+      placeholder: "Arraste e solte o PDF assinado aqui..."
+    validations:
+      required: true
+
   - type: checkboxes
     id: confirmacoes
     attributes:
@@ -82,5 +91,5 @@ body:
       options:
         - label: "Revisei meus dados e confirmo que estão corretos."
           required: true
-        - label: "Anexei o Termo de Responsabilidade devidamente assinado no corpo desta Issue (basta arrastar o arquivo para a caixa de texto abaixo)."
+        - label: "Anexei o Termo de Responsabilidade devidamente assinado no campo acima."
           required: true

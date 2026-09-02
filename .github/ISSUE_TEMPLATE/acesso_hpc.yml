@@ -1,12 +1,12 @@
-name: "Solicitação de Acesso - HPC Spark 45 (CEIA/Akcit)"
-description: "Formulário para registro e solicitação de credenciais de acesso ao cluster hpc-spark-45."
-title: "[Acesso hpc-spark-45]"
+name: "Solicitação de Acesso a Cluster HPC (CEIA/Akcit)"
+description: "Formulário para registro e solicitação de credenciais de acesso aos clusters HPC."
+title: "[Acesso Cluster]"
 labels: ["novo-acesso", "pendente"]
 body:
   - type: markdown
     attributes:
       value: |
-        ### Bem-vindo(a) ao processo de solicitação de acesso ao cluster hpc-spark-45
+        ### Bem-vindo(a) ao processo de solicitação de acesso aos clusters HPC
 
         Para prosseguir com a liberação, por favor preencha os dados abaixo.
 
@@ -79,6 +79,24 @@ body:
       label: "Matrícula UFG ou Documento (CPF / Passaporte / RNM)"
       description: "Se membro UFG: informe a Matrícula UFG. Se membro externo brasileiro: informe o CPF. Se estrangeiro: informe o Passaporte ou RNM (Registro Nacional Migratório)."
       placeholder: "Ex: Matrícula: 2024000000 | CPF: 000.000.000-00 | Passaporte: AB123456"
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: "<br>"
+
+  - type: dropdown
+    id: plataforma_cluster
+    attributes:
+      label: "Plataforma / Cluster Desejado"
+      description: "Selecione o cluster computacional para o qual está solicitando acesso."
+      options:
+        - "Spark (hpc-spark-45)"
+        - "H100"
+        - "B200"
+        - "A100"
+        - "Outro (especificar no campo de projeto)"
     validations:
       required: true
 

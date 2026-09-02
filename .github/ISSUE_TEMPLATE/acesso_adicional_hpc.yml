@@ -1,0 +1,66 @@
+name: "Solicitação de Acesso Adicional a Cluster HPC (CEIA/Akcit)"
+description: "Formulário para quem já possui cadastro no ambiente e precisa apenas de acesso a outro cluster."
+title: "[Acesso Adicional]"
+labels: ["acesso-cluster-adicional", "pendente"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ### Solicitação de acesso a cluster adicional (CEIA/Akcit)
+
+        Use este formulário **somente se você já possui cadastro/usuário no ambiente** e precisa apenas de liberação de acesso a um cluster adicional.
+
+        Caso ainda não possua nenhum cadastro no ambiente, utilize o formulário **"Solicitação de Acesso a Cluster HPC"** em vez deste.
+
+  - type: markdown
+    attributes:
+      value: "<br>"
+
+  - type: input
+    id: usuario_ou_email
+    attributes:
+      label: "Usuário ou email já cadastrado no ambiente"
+      placeholder: "Ex: user_joaosilva ou joao.silva@discente.ufg.br"
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: "<br>"
+
+  - type: dropdown
+    id: plataforma_cluster
+    attributes:
+      label: "Plataforma / Cluster Desejado"
+      description: "Selecione o cluster computacional adicional para o qual está solicitando acesso."
+      options:
+        - "Cluster Spark (hpc-spark-45)"
+        - "H100"
+        - "B200"
+        - "Outro (especificar abaixo)"
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: "<br>"
+
+  - type: input
+    id: professor_solicitante
+    attributes:
+      label: "Nome do professor responsável pela solicitação"
+      placeholder: "Nome do professor que está solicitando o acesso"
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: "<br>"
+
+  - type: checkboxes
+    id: confirmacoes
+    attributes:
+      label: "Confirmações Finais"
+      options:
+        - label: "Revisei meus dados e confirmo que estão corretos."
+          required: true

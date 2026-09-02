@@ -142,3 +142,26 @@ jobs:
                 });
               }
             }
+
+  fechar-issue-sem-template:
+    if: "!contains(github.event.issue.labels.*.name, 'novo-acesso') && !contains(github.event.issue.labels.*.name, 'acesso-cluster-adicional') && github.event.action == 'opened'"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Encerrar issue aberta fora dos templates oficiais
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `Olá @${context.payload.issue.user.login}, esta Issue foi fechada automaticamente porque não utilizou um dos modelos oficiais de formulário.\n\nPor favor, abra uma nova solicitação selecionando um dos modelos disponíveis em:\nhttps://github.com/${context.repo.owner}/${context.repo.repo}/issues/new/choose`,
+            });
+
+            await github.rest.issues.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              state: 'closed',
+              state_reason: 'not_planned',
+            });

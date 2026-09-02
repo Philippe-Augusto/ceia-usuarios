@@ -103,7 +103,7 @@ jobs:
                   minute: '2-digit',
                 }).format(now).replace(',', ' às');
 
-                body = body.replace(regexEmailChecked, `- [x] $1 (Data de envio: ${dataFormatada} por @${sender})`);
+                body = body.replace(regexEmailChecked, `- [x] $1 (Data de envio: ${dataFormatada} por \`@${sender}\`)`);
                 alterado = true;
               }
             } else if (regexEmailUnchecked.test(body)) {

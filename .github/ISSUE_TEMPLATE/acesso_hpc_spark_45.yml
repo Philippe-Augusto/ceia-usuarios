@@ -1,6 +1,6 @@
 name: "Solicitação de Acesso - HPC Spark 45 (CEIA/Akcit)"
 description: "Formulário para registro e solicitação de credenciais de acesso ao cluster hpc-spark-45."
-title: "[Acesso hpc-spark-45] [Nome do pesquisador]"
+title: "[Acesso hpc-spark-45]"
 labels: ["novo-acesso", "pendente"]
 body:
   - type: markdown
@@ -13,9 +13,13 @@ body:
         **ATENÇÃO - PASSO OBRIGATÓRIO:**
         É necessário assinar o termo de responsabilidade e anexá-lo (arrastar o PDF) no final desta página antes de abrir a Issue. Recomendamos fortemente o uso de assinatura digital (preferencialmente via [gov.br](https://www.gov.br/pt-br/servicos/assinatura-eletronica)).
 
-        **[BAIXE AQUI O TERMO DE RESPONSABILIDADE](https://drive.google.com/file/d/1KJla5KLLMLAabjmpBsFcf43vMAEfP9iH/view?usp=sharing)**
+        👉 **[BAIXE AQUI O TERMO DE RESPONSABILIDADE](https://drive.google.com/file/d/1KJla5KLLMLAabjmpBsFcf43vMAEfP9iH/view?usp=sharing)**
 
         Após a conclusão, retornaremos com os respectivos dados de acesso.
+
+  - type: markdown
+    attributes:
+      value: "<br>"
 
   - type: input
     id: nome_completo
@@ -24,6 +28,10 @@ body:
       placeholder: "Ex: João da Silva"
     validations:
       required: true
+
+  - type: markdown
+    attributes:
+      value: "<br>"
 
   - type: input
     id: email
@@ -34,6 +42,10 @@ body:
     validations:
       required: true
 
+  - type: markdown
+    attributes:
+      value: "<br>"
+
   - type: input
     id: telefone
     attributes:
@@ -41,6 +53,38 @@ body:
       placeholder: "Ex: (62) 99999-9999"
     validations:
       required: true
+
+  - type: markdown
+    attributes:
+      value: "<br>"
+
+  - type: dropdown
+    id: membro_externo
+    attributes:
+      label: "Membro Externo?"
+      description: "Indique se você possui vínculo direto com a UFG ou se é pesquisador externo/estrangeiro."
+      options:
+        - "Não (pesquisador/aluno com vínculo UFG)"
+        - "Sim (pesquisador externo ou estrangeiro)"
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: "<br>"
+
+  - type: input
+    id: matricula_ou_documento
+    attributes:
+      label: "Matrícula UFG ou Documento (CPF / Passaporte / RNM)"
+      description: "Se membro UFG: informe a Matrícula UFG. Se membro externo brasileiro: informe o CPF. Se estrangeiro: informe o Passaporte ou RNM (Registro Nacional Migratório)."
+      placeholder: "Ex: Matrícula: 2024000000 | CPF: 000.000.000-00 | Passaporte: AB123456"
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: "<br>"
 
   - type: input
     id: projeto
@@ -50,6 +94,10 @@ body:
     validations:
       required: true
 
+  - type: markdown
+    attributes:
+      value: "<br>"
+
   - type: input
     id: coordenador
     attributes:
@@ -57,6 +105,10 @@ body:
       placeholder: "Nome do coordenador responsável"
     validations:
       required: true
+
+  - type: markdown
+    attributes:
+      value: "<br>"
 
   - type: input
     id: instituicao
@@ -66,14 +118,9 @@ body:
     validations:
       required: true
 
-  - type: input
-    id: matricula
+  - type: markdown
     attributes:
-      label: "Matrícula UFG"
-      description: "Caso não possua vínculo ou matrícula, escreva 'Não possuo'."
-      placeholder: "Ex: 2024000000"
-    validations:
-      required: true
+      value: "<br>"
 
   - type: textarea
     id: termo_responsabilidade
@@ -83,6 +130,10 @@ body:
       placeholder: "Arraste e solte o PDF assinado aqui..."
     validations:
       required: true
+
+  - type: markdown
+    attributes:
+      value: "<br>"
 
   - type: checkboxes
     id: confirmacoes

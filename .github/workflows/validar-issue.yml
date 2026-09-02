@@ -1,0 +1,144 @@
+name: Validar Issue
+
+on:
+  issues:
+    types: [opened, edited]
+
+permissions:
+  issues: write
+
+jobs:
+  validar-formulario:
+    if: contains(github.event.issue.labels.*.name, 'novo-acesso')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validar campos e anexo do formulário
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = context.payload.issue.body || "";
+            const pendencias = [];
+
+            function extrairCampo(label) {
+              const regex = new RegExp(`### ${label}\\s*\\n+([\\s\\S]*?)(?=\\n### |$)`);
+              const match = body.match(regex);
+              return match ? match[1].trim() : "";
+            }
+
+            function isPreenchido(val) {
+              if (!val) return false;
+              const limpo = val.trim();
+              return limpo !== "" && limpo !== "_No response_";
+            }
+
+            // 1. Email
+            const email = extrairCampo("Email");
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!isPreenchido(email)) {
+              pendencias.push("Preencha o campo de **Email**.");
+            } else if (!emailRegex.test(email)) {
+              pendencias.push("Informe um **Email** válido (ex: `usuario@discente.ufg.br`).");
+            }
+
+            // 2. Telefone de contato com DDD
+            const telefone = extrairCampo("Telefone de contato com DDD");
+            const apenasDigitos = telefone.replace(/\D/g, "");
+            if (!isPreenchido(telefone)) {
+              pendencias.push("Preencha o **Telefone de contato com DDD**.");
+            } else if (apenasDigitos.length < 10 || apenasDigitos.length > 11) {
+              pendencias.push("Informe um **Telefone com DDD** válido (10 ou 11 dígitos, ex: `(62) 99999-9999`).");
+            }
+
+            // 3. Termo de Responsabilidade Assinado (PDF)
+            const termo = extrairCampo("Termo de Responsabilidade Assinado (PDF)");
+            const temAnexo = /https:\/\/(github\.com\/user-attachments|[a-z0-9.-]*\.githubusercontent\.com)\//i.test(termo)
+              || /https:\/\/drive\.google\.com\//i.test(termo);
+            if (!isPreenchido(termo) || !temAnexo) {
+              pendencias.push("Anexe o **Termo de Responsabilidade assinado** (arraste o arquivo PDF para o campo correspondente).");
+            }
+
+            const labelAviso = 'dados-pendentes';
+            const labelAntiga = 'anexo-pendente';
+
+            async function garantirLabelExiste() {
+              try {
+                await github.rest.issues.createLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  name: labelAviso,
+                  color: 'd93f0b',
+                  description: 'Aguardando preenchimento correto de dados ou anexo do termo',
+                });
+              } catch (e) {
+                if (e.status !== 422) throw e;
+              }
+            }
+
+            // Busca comentários prévios do bot para evitar duplicações/spam
+            const comments = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            const botComment = comments.data.find(c =>
+              c.user.type === 'Bot' && (
+                c.body.includes('pendências no seu formulário') ||
+                c.body.includes('não identificamos nenhum arquivo anexado')
+              )
+            );
+
+            if (pendencias.length > 0) {
+              await garantirLabelExiste();
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                labels: [labelAviso],
+              });
+
+              const listaFormatada = pendencias.map(p => `- ❌ ${p}`).join('\n');
+              const corpoComentario = `⚠️ Olá @${context.payload.issue.user.login}, foram identificadas pendências no seu formulário que precisam ser corrigidas antes da análise da sua solicitação:\n\n${listaFormatada}\n\n---\n> 💡 **Como corrigir:** Clique no botão de opções (**\`...\`**) no canto superior direito da descrição desta Issue, selecione **Edit** (Editar), corrija os campos/anexo pendentes e clique em **Update comment**.`;
+
+              if (botComment) {
+                await github.rest.issues.updateComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  comment_id: botComment.id,
+                  body: corpoComentario,
+                });
+              } else {
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: context.issue.number,
+                  body: corpoComentario,
+                });
+              }
+            } else {
+              // Remove labels de pendências se existirem
+              const labelsAtuais = context.payload.issue.labels.map(l => l.name);
+              for (const l of [labelAviso, labelAntiga]) {
+                if (labelsAtuais.includes(l)) {
+                  try {
+                    await github.rest.issues.removeLabel({
+                      owner: context.repo.owner,
+                      repo: context.repo.repo,
+                      issue_number: context.issue.number,
+                      name: l,
+                    });
+                  } catch (e) {
+                    if (e.status !== 404) throw e;
+                  }
+                }
+              }
+
+              // Atualiza o comentário anterior indicando que tudo foi resolvido
+              if (botComment) {
+                await github.rest.issues.updateComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  comment_id: botComment.id,
+                  body: `✅ **Pendências resolvidas!** Todos os dados e o Termo de Responsabilidade foram preenchidos corretamente. Sua solicitação agora será analisada pela equipe técnica.`,
+                });
+              }
+            }

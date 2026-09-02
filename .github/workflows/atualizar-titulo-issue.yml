@@ -3,13 +3,15 @@ name: Atualizar título e checklist da issue
 on:
   issues:
     types: [opened]
+  issue_comment:
+    types: [edited]
 
 permissions:
   issues: write
 
 jobs:
   inicializar-issue:
-    if: contains(github.event.issue.labels.*.name, 'novo-acesso') || contains(github.event.issue.labels.*.name, 'acesso-cluster-adicional')
+    if: github.event_name == 'issues' && (contains(github.event.issue.labels.*.name, 'novo-acesso') || contains(github.event.issue.labels.*.name, 'acesso-cluster-adicional'))
     runs-on: ubuntu-latest
     steps:
       - name: Processar título e criar checklist de administradores
@@ -31,7 +33,6 @@ jobs:
             if (clusterRaw.includes('Spark')) clusterNome = 'Spark';
             else if (clusterRaw.includes('H100')) clusterNome = 'H100';
             else if (clusterRaw.includes('B200')) clusterNome = 'B200';
-            else if (clusterRaw.includes('A100')) clusterNome = 'A100';
             else clusterNome = clusterRaw.split('(')[0].trim();
 
             let valor = null;
@@ -42,16 +43,16 @@ jobs:
               valor = extrairCampo('Nome completo do pesquisador');
               prefixo = `[Acesso ${clusterNome}]`;
               checklistBody = `### Checklist de Provisionamento (Administradores)\n\n` +
-                `- [ ] CRIAR USUARIO BCM\n` +
-                `- [ ] COLOCAR NO GRUPO DO CLUSTER (${clusterNome.toUpperCase()})\n` +
-                `- [ ] CRIAR CERTIFICADO NO PFSENSE\n` +
-                `- [ ] ENVIAR USUARIO/SENHA, ARQUIVO DE VPN, IP DA MÁQUINA E MANUAL DE USO`;
+                `- [ ] Criar usuario no BCM\n` +
+                `- [ ] Inserir usuário no grupo (${clusterNome.toUpperCase()})\n` +
+                `- [ ] Criar certificado no pfsense\n` +
+                `- [ ] Email enviado (Usuario/Senha, Arquivo de VPN, IP da máquina e Manual de Uso)`;
             } else if (labels.includes('acesso-cluster-adicional')) {
               valor = extrairCampo('Usuário ou email já cadastrado no ambiente');
               prefixo = `[Acesso Adicional ${clusterNome}]`;
               checklistBody = `### Checklist de Provisionamento (Administradores)\n\n` +
-                `- [ ] COLOCAR NO GRUPO DO CLUSTER (${clusterNome.toUpperCase()})\n` +
-                `- [ ] ENVIAR INSTRUÇÕES E MANUAL DE USO DO NOVO AMBIENTE`;
+                `- [ ] Inserir usuário no grupo (${clusterNome.toUpperCase()})\n` +
+                `- [ ] Email enviado (Instruções e Manual de Uso do novo ambiente)`;
             }
 
             if (valor) {
@@ -69,5 +70,55 @@ jobs:
                 repo: context.repo.repo,
                 issue_number: context.issue.number,
                 body: checklistBody,
+              });
+            }
+
+  registrar-data-checklist:
+    if: github.event_name == 'issue_comment' && github.event.comment.user.type == 'Bot' && github.event.sender.type != 'Bot'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Registrar data do envio de email no checklist
+        uses: actions/github-script@v7
+        with:
+          script: |
+            let body = context.payload.comment.body || "";
+            if (!body.includes("### Checklist de Provisionamento")) return;
+
+            const sender = context.payload.sender.login;
+            const regexEmailChecked = /- \[x\] (Email enviado \([^)\n\r]+\))(?:\s*\(Data de envio:.*?\))?$/m;
+            const regexEmailUnchecked = /- \[ \] (Email enviado \([^)\n\r]+\))(?:\s*\(Data de envio:.*?\))?$/m;
+
+            let alterado = false;
+
+            if (regexEmailChecked.test(body)) {
+              const match = body.match(regexEmailChecked);
+              if (!match[0].includes("(Data de envio:")) {
+                const now = new Date();
+                const dataFormatada = new Intl.DateTimeFormat('pt-BR', {
+                  timeZone: 'America/Sao_Paulo',
+                  day: '2-digit',
+                  month: '2-digit',
+                  year: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                }).format(now).replace(',', ' às');
+
+                body = body.replace(regexEmailChecked, `- [x] $1 (Data de envio: ${dataFormatada} por @${sender})`);
+                alterado = true;
+              }
+            } else if (regexEmailUnchecked.test(body)) {
+              const match = body.match(regexEmailUnchecked);
+              if (match[0].includes("(Data de envio:")) {
+                body = body.replace(regexEmailUnchecked, `- [ ] $1`);
+                alterado = true;
+              }
+            }
+
+            if (alterado) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: context.payload.comment.id,
+                body: body,
               });
             }

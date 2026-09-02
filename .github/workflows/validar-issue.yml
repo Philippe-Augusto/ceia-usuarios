@@ -20,7 +20,8 @@ jobs:
             const pendencias = [];
 
             function extrairCampo(label) {
-              const regex = new RegExp(`### ${label}\\s*\\n+([\\s\\S]*?)(?=\\n### |$)`);
+              const escaped = label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+              const regex = new RegExp(`### ${escaped}\\s*\\n+([\\s\\S]*?)(?=\\n### |$)`);
               const match = body.match(regex);
               return match ? match[1].trim() : "";
             }
@@ -51,8 +52,7 @@ jobs:
 
             // 3. Termo de Responsabilidade Assinado (PDF)
             const termo = extrairCampo("Termo de Responsabilidade Assinado (PDF)");
-            const temAnexo = /https:\/\/(github\.com\/user-attachments|[a-z0-9.-]*\.githubusercontent\.com)\//i.test(termo)
-              || /https:\/\/drive\.google\.com\//i.test(termo);
+            const temAnexo = /https?:\/\/[^\s)]+/i.test(termo) || /\.pdf/i.test(termo);
             if (!isPreenchido(termo) || !temAnexo) {
               pendencias.push("Anexe o **Termo de Responsabilidade assinado** (arraste o arquivo PDF para o campo correspondente).");
             }
@@ -96,8 +96,8 @@ jobs:
                 labels: [labelAviso],
               });
 
-              const listaFormatada = pendencias.map(p => `- ❌ ${p}`).join('\n');
-              const corpoComentario = `⚠️ Olá @${context.payload.issue.user.login}, foram identificadas pendências no seu formulário que precisam ser corrigidas antes da análise da sua solicitação:\n\n${listaFormatada}\n\n---\n> 💡 **Como corrigir:** Clique no botão de opções (**\`...\`**) no canto superior direito da descrição desta Issue, selecione **Edit** (Editar), corrija os campos/anexo pendentes e clique em **Update comment**.`;
+              const listaFormatada = pendencias.map(p => `- ${p}`).join('\n');
+              const corpoComentario = `Olá @${context.payload.issue.user.login}, foram identificadas pendências no seu formulário que precisam ser corrigidas antes da análise da sua solicitação:\n\n${listaFormatada}\n\n---\n> **Como corrigir:** Clique no botão de opções (**\`...\`**) no canto superior direito da descrição desta Issue, selecione **Edit** (Editar), corrija os campos/anexo pendentes e clique em **Update comment**.`;
 
               if (botComment) {
                 await github.rest.issues.updateComment({
@@ -138,7 +138,7 @@ jobs:
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   comment_id: botComment.id,
-                  body: `✅ **Pendências resolvidas!** Todos os dados e o Termo de Responsabilidade foram preenchidos corretamente. Sua solicitação agora será analisada pela equipe técnica.`,
+                  body: `**Pendências resolvidas!** Todos os dados e o Termo de Responsabilidade foram preenchidos corretamente. Sua solicitação agora será analisada pela equipe técnica.`,
                 });
               }
             }

@@ -43,15 +43,11 @@ jobs:
               valor = extrairCampo('Nome completo do pesquisador');
               prefixo = `[Acesso ${clusterNome}]`;
               checklistBody = `### Checklist de Provisionamento (Administradores)\n\n` +
-                `- [ ] Criar usuario no BCM\n` +
-                `- [ ] Inserir usuário no grupo (${clusterNome.toUpperCase()})\n` +
-                `- [ ] Criar certificado no pfsense\n` +
-                `- [ ] Email enviado (Usuario/Senha, Arquivo de VPN, IP da máquina e Manual de Uso)`;
+                `- [ ] Email enviado (Usuário/Senha, Arquivo de VPN e Manual de Uso)`;
             } else if (labels.includes('acesso-cluster-adicional')) {
               valor = extrairCampo('Usuário ou email já cadastrado no ambiente');
               prefixo = `[Acesso Adicional ${clusterNome}]`;
               checklistBody = `### Checklist de Provisionamento (Administradores)\n\n` +
-                `- [ ] Inserir usuário no grupo (${clusterNome.toUpperCase()})\n` +
                 `- [ ] Email enviado (Instruções e Manual de Uso do novo ambiente)`;
             }
 

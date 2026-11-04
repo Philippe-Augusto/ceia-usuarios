@@ -92,10 +92,11 @@ body:
       label: "Plataforma / Cluster Desejado"
       description: "Selecione o cluster computacional para o qual está solicitando acesso."
       options:
-        - "Spark (hpc-spark-45)"
-        - "H100"
-        - "B200"
-        - "Outro (especificar no campo de Observações)"
+        - "DGX H100"
+        - "DGX B200"
+        - "Spark Slurm (Compartilhado)"
+        - "Spark Notebook (GAIA/FCE)"
+        - 'Outro (especificar no campo "Observações")'
     validations:
       required: true
 

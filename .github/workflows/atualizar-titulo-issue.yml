@@ -31,12 +31,13 @@ jobs:
               return valor === "_No response_" ? "" : valor;
             }
 
-            // Opção do formulário -> nome no título e grupo do FreeIPA
+            // Opção do formulário -> nome no título e grupo do FreeIPA. A ordem importa:
+            // 'Spark Notebook' antes de 'Spark', que também casa a opção antiga "Spark (hpc-spark-45)"
             const clusters = [
               { chave: 'H100', nome: 'DGX H100', grupo: 'group_dgx-h100-<numero>' },
               { chave: 'B200', nome: 'DGX B200', grupo: 'group_dgx-b200-<numero>' },
-              { chave: 'Spark Slurm', nome: 'Spark Slurm', grupo: 'hpc-spark-45' },
               { chave: 'Spark Notebook', nome: 'Spark Notebook', grupo: 'notebook-spark' },
+              { chave: 'Spark', nome: 'Spark Slurm', grupo: 'hpc-spark-45' },
             ];
             const clusterRaw = extrairCampo('Plataforma / Cluster Desejado');
             const cluster = clusters.find(c => clusterRaw.includes(c.chave))

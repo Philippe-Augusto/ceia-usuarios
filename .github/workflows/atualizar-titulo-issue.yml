@@ -2,7 +2,7 @@ name: Atualizar título e checklist da issue
 
 on:
   issues:
-    types: [opened]
+    types: [opened, edited]
   issue_comment:
     types: [edited]
 
@@ -14,10 +14,12 @@ jobs:
     if: github.event_name == 'issues' && (contains(github.event.issue.labels.*.name, 'novo-acesso') || contains(github.event.issue.labels.*.name, 'acesso-cluster-adicional'))
     runs-on: ubuntu-latest
     steps:
-      - name: Processar título e criar checklist de administradores
+      - name: Atualizar título e dados para cadastro; criar checklist
         uses: actions/github-script@v7
         with:
           script: |
+            const { owner, repo } = context.repo;
+            const issue_number = context.issue.number;
             const body = context.payload.issue.body || "";
             const labels = context.payload.issue.labels.map(l => l.name);
 
@@ -25,48 +27,84 @@ jobs:
               const escaped = label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
               const regex = new RegExp(`### ${escaped}\\s*\\n+([^\\n#]+)`);
               const match = body.match(regex);
-              return match ? match[1].trim() : null;
+              const valor = match ? match[1].trim() : "";
+              return valor === "_No response_" ? "" : valor;
             }
 
-            const clusterRaw = extrairCampo('Plataforma / Cluster Desejado') || 'Cluster';
-            let clusterNome = 'Cluster';
-            if (clusterRaw.includes('Spark')) clusterNome = 'Spark';
-            else if (clusterRaw.includes('H100')) clusterNome = 'H100';
-            else if (clusterRaw.includes('B200')) clusterNome = 'B200';
-            else clusterNome = clusterRaw.split('(')[0].trim();
+            // Opção do formulário -> nome no título e grupo do FreeIPA
+            const clusters = [
+              { chave: 'H100', nome: 'DGX H100', grupo: 'group_dgx-h100-<numero>' },
+              { chave: 'B200', nome: 'DGX B200', grupo: 'group_dgx-b200-<numero>' },
+              { chave: 'Spark Slurm', nome: 'Spark Slurm', grupo: 'hpc-spark-45' },
+              { chave: 'Spark Notebook', nome: 'Spark Notebook', grupo: 'notebook-spark' },
+            ];
+            const clusterRaw = extrairCampo('Plataforma / Cluster Desejado');
+            const cluster = clusters.find(c => clusterRaw.includes(c.chave))
+              || { nome: 'Outro', grupo: '(definir: ver Observações)' };
 
-            let valor = null;
+            // user_ + primeiro nome + último sobrenome, minúsculo e sem acento
+            function gerarUsuario(nomeCompleto) {
+              const normalizar = s => s.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase().replace(/[^a-z0-9]/g, '');
+              const sufixos = new Set(['junior', 'jr', 'filho', 'neto', 'sobrinho']);
+              const palavras = nomeCompleto.split(/\s+/).map(normalizar).filter(Boolean);
+              if (palavras.length === 0) return '(conferir: nome vazio)';
+              const sobrenomes = palavras.slice(1).filter(p => !sufixos.has(p));
+              const ultimo = sobrenomes.at(-1) || palavras.slice(1).at(-1) || '';
+              return `user_${palavras[0]}${ultimo}`.slice(0, 32);
+            }
+
+            // Sem crases: o valor vai dentro de um bloco de código
+            const limpar = s => (s || '').replace(/`/g, '').trim();
+
+            let valorTitulo = null;
             let prefixo = null;
-            let checklistBody = null;
+            let dados = null;
+            let checklist = null;
 
             if (labels.includes('novo-acesso')) {
-              valor = extrairCampo('Nome completo do pesquisador');
-              prefixo = `[Acesso ${clusterNome}]`;
-              checklistBody = `### Checklist de Provisionamento (Administradores)\n\n` +
-                `- [ ] Email enviado (Usuário/Senha, Arquivo de VPN e Manual de Uso)`;
+              const nomeCompleto = extrairCampo('Nome completo do pesquisador');
+              valorTitulo = nomeCompleto;
+              prefixo = `[Acesso ${cluster.nome}]`;
+              dados = [
+                `usuario: ${gerarUsuario(nomeCompleto)}`,
+                `email: ${limpar(extrairCampo('Email'))}`,
+                `grupo: ${cluster.grupo}`,
+              ];
+              checklist = `- [ ] Email enviado (Usuário/Senha, Arquivo de VPN e Manual de Uso)`;
             } else if (labels.includes('acesso-cluster-adicional')) {
-              valor = extrairCampo('Usuário ou email já cadastrado no ambiente');
-              prefixo = `[Acesso Adicional ${clusterNome}]`;
-              checklistBody = `### Checklist de Provisionamento (Administradores)\n\n` +
-                `- [ ] Email enviado (Instruções e Manual de Uso do novo ambiente)`;
+              valorTitulo = extrairCampo('Usuário ou email já cadastrado no ambiente');
+              prefixo = `[Acesso Adicional ${cluster.nome}]`;
+              dados = [
+                `usuario: ${limpar(valorTitulo)}`,
+                `grupo: ${cluster.grupo}`,
+              ];
+              checklist = `- [ ] Email enviado (Instruções e Manual de Uso do novo ambiente)`;
             }
 
-            if (valor) {
-              await github.rest.issues.update({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.issue.number,
-                title: `${prefixo} ${valor}`,
-              });
+            if (valorTitulo) {
+              await github.rest.issues.update({ owner, repo, issue_number, title: `${prefixo} ${valorTitulo}` });
             }
+            if (!dados) return;
 
-            if (checklistBody) {
+            const secaoDados = `### Dados para cadastro (Administradores)\n\n\`\`\`text\n${dados.join('\n')}\n\`\`\`\n\n`;
+            const tituloChecklist = '### Checklist de Provisionamento (Administradores)';
+
+            const comments = await github.paginate(github.rest.issues.listComments, { owner, repo, issue_number });
+            const existente = comments.find(c => c.user.type === 'Bot' && c.body.includes(tituloChecklist));
+
+            if (!existente) {
               await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.issue.number,
-                body: checklistBody,
+                owner, repo, issue_number,
+                body: `${secaoDados}${tituloChecklist}\n\n${checklist}`,
               });
+              return;
+            }
+
+            // Issue editada: troca só os dados e mantém o checklist como está
+            const inicioChecklist = existente.body.indexOf(tituloChecklist);
+            const novoCorpo = secaoDados + existente.body.slice(inicioChecklist);
+            if (novoCorpo !== existente.body) {
+              await github.rest.issues.updateComment({ owner, repo, comment_id: existente.id, body: novoCorpo });
             }
 
   registrar-data-checklist:

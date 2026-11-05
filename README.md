@@ -23,7 +23,7 @@ Não coloque senhas nem dados sensíveis além do que o formulário pede: **as i
 Labels: `novo-acesso` / `acesso-cluster-adicional` (tipo), `pendente`, `dados-pendentes`.
 
 Grupo por plataforma: DGX H100 → `group_dgx-h100-<numero>`, DGX B200 → `group_dgx-b200-<numero>`,
-Spark Slurm → `hpc-spark-45`, Spark Notebook → `notebook-spark`. Se a issue for editada, os dados do comentário
+Spark Slurm → `group_u_hpc-spark-45`, Spark Notebook → `notebook-spark`. Se a issue for editada, os dados do comentário
 são atualizados.
 
 Ao marcar "Email enviado" no checklist, o workflow registra a data e quem marcou.

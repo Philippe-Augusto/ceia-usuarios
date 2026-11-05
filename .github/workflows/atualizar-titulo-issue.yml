@@ -37,7 +37,7 @@ jobs:
               { chave: 'H100', nome: 'DGX H100', grupo: 'group_dgx-h100-<numero>' },
               { chave: 'B200', nome: 'DGX B200', grupo: 'group_dgx-b200-<numero>' },
               { chave: 'Spark Notebook', nome: 'Spark Notebook', grupo: 'notebook-spark' },
-              { chave: 'Spark', nome: 'Spark Slurm', grupo: 'hpc-spark-45' },
+              { chave: 'Spark', nome: 'Spark Slurm', grupo: 'group_u_hpc-spark-45' },
             ];
             const clusterRaw = extrairCampo('Plataforma / Cluster Desejado');
             const cluster = clusters.find(c => clusterRaw.includes(c.chave))
